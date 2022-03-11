@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: InputContainer
   m_EditorClassIdentifier: 
   VO:
-    Sensitivity: 5
+    Sensitivity: 8
     XLimit: 1.5

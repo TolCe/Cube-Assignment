@@ -1,28 +1,37 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ParticleController : MonoBehaviour
 {
-    private ParticleSystem _particle;
-    private string _poolName;
+    [SerializeField] private ParticleSystem _crashParticle, _coinParticle;
 
-    private void Awake()
+    private void OnEnable()
     {
-        _particle = GetComponent<ParticleSystem>();
-    }
-    private void Update()
-    {
-        if (!_particle.IsAlive(true))
+        if (GameEvents.Instance != null)
         {
-            PoolController.Instance.PutBackIntoPool(_poolName, gameObject);
+            GameEvents.Instance.OnCoinEarned += OnCoinEarned;
+            GameEvents.Instance.OnObstacleTriggered += OnObstacleTriggered;
         }
     }
 
-    public void PlayParticle(string name, Vector3 direction)
+    private void OnDisable()
     {
-        _poolName = name;
-        transform.LookAt(direction);
-        _particle.Play();
+        if (GameEvents.Instance != null)
+        {
+            GameEvents.Instance.OnCoinEarned -= OnCoinEarned;
+            GameEvents.Instance.OnObstacleTriggered -= OnObstacleTriggered;
+        }
+    }
+
+    private void OnCoinEarned(int obj)
+    {
+        _coinParticle.Play();
+    }
+
+    private void OnObstacleTriggered(float arg1, float arg2)
+    {
+        _crashParticle.Play();
     }
 }

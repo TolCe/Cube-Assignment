@@ -14,15 +14,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject[] _successElements;
     [SerializeField] private GameObject[] _failElements;
 
-    [SerializeField] private TMP_Text _levelText;
+    [SerializeField] private TMP_Text[] _levelTexts;
     [SerializeField] private TMP_Text[] _totalCoinAmountTexts;
     [SerializeField] private TMP_Text[] _coinEarnedTexts;
+
+    [SerializeField] private Image HealthImage;
 
     private void OnEnable()
     {
         if (GameEvents.Instance != null)
         {
             GameEvents.Instance.OnLevelLoaded += OnLevelLoaded;
+            GameEvents.Instance.OnObstacleTriggered += OnObstacleTriggered;
             GameEvents.Instance.OnLevelFinished += OnLevelFinished;
             GameEvents.Instance.OnLevelSuccess += OnLevelSuccess;
             GameEvents.Instance.OnLevelFail += OnLevelFail;
@@ -37,6 +40,7 @@ public class UIManager : MonoBehaviour
         if (GameEvents.Instance != null)
         {
             GameEvents.Instance.OnLevelLoaded -= OnLevelLoaded;
+            GameEvents.Instance.OnObstacleTriggered -= OnObstacleTriggered;
             GameEvents.Instance.OnLevelFinished -= OnLevelFinished;
             GameEvents.Instance.OnLevelSuccess -= OnLevelSuccess;
             GameEvents.Instance.OnLevelFail -= OnLevelFail;
@@ -53,7 +57,9 @@ public class UIManager : MonoBehaviour
         SetScreenActivity(_successElements, false);
         SetScreenActivity(_failElements, false);
 
-        _levelText.text = "Level " + (levelIndex + 1);
+        ChangeTexts(_levelTexts, "Level " + (levelIndex + 1));
+        ChangeTexts(_coinEarnedTexts, "");
+        HealthImage.fillAmount = 1;
     }
 
     private void OnStartedPlaying()
@@ -64,18 +70,12 @@ public class UIManager : MonoBehaviour
 
     private void OnCoinCalculated(int coinAmount)
     {
-        foreach (var item in _totalCoinAmountTexts)
-        {
-            item.text = "Total Coins: " + coinAmount;
-        }
+        ChangeTexts(_totalCoinAmountTexts, "" + coinAmount);
     }
 
     private void OnCoinEarned(int coinEarned)
     {
-        foreach (var item in _coinEarnedTexts)
-        {
-            item.text = "+" + coinEarned;
-        }
+        ChangeTexts(_coinEarnedTexts, "+" + coinEarned);
     }
 
     private void SetScreenActivity(GameObject[] screen, bool state)
@@ -83,6 +83,13 @@ public class UIManager : MonoBehaviour
         foreach (var item in screen)
         {
             item.SetActive(state);
+        }
+    }
+    private void ChangeTexts(TMP_Text[] texts, string aMessage)
+    {
+        foreach (var item in texts)
+        {
+            item.text = aMessage;
         }
     }
 
@@ -106,5 +113,15 @@ public class UIManager : MonoBehaviour
     public void OnRestartPressed()
     {
         GameEvents.Instance.LevelRestart();
+    }
+
+    public void OnStartPressed()
+    {
+        GameEvents.Instance.StartedPlaying();
+    }
+
+    private void OnObstacleTriggered(float health, float totalHealth)
+    {
+        HealthImage.fillAmount = health / totalHealth;
     }
 }

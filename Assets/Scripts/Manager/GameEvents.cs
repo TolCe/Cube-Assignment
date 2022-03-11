@@ -65,6 +65,14 @@ public class GameEvents : MonoBehaviour
             OnForwardMove(playerZPos);
         }
     }
+    public event Action<float, float> OnObstacleTriggered;
+    public void ObstacleTriggered(float healthLeft, float totalHealth)
+    {
+        if (OnObstacleTriggered != null)
+        {
+            OnObstacleTriggered(healthLeft, totalHealth);
+        }
+    }
     public event Action<int> OnCoinTriggered;
     public void CoinTriggered(int earnedAmount)
     {

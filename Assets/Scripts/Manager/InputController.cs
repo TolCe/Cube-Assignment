@@ -7,7 +7,6 @@ public class InputController : MonoBehaviour
     public InputContainer InputContainer;
     private bool _shouldGetInput;
     private bool _pressing;
-    private bool _firstPress;
     private float _inputAmount;
     private Vector3 _initialMousePosition;
 
@@ -37,16 +36,10 @@ public class InputController : MonoBehaviour
     {
         if (_shouldGetInput)
         {
-            if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
+            if (Input.GetMouseButton(0))
             {
                 if (!_pressing)
                 {
-                    if (_firstPress)
-                    {
-                        GameEvents.Instance.StartedPlaying();
-                        _firstPress = false;
-                    }
-
                     GameEvents.Instance.ResetInput();
                     _pressing = true;
                 }
@@ -72,12 +65,12 @@ public class InputController : MonoBehaviour
 
     private void OnLevelLoaded(int levelIndex)
     {
-        _shouldGetInput = true;
-        _firstPress = true;
+
     }
 
     private void OnStartedPlaying()
     {
+        _shouldGetInput = true;
     }
 
     private void OnResetInput()

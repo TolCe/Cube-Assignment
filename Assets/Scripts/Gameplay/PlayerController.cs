@@ -56,6 +56,7 @@ public class PlayerController : MonoBehaviour
         {
             obstacle.GetHit();
             SetHealth(-obstacle.VO.Damage + PlayerContainer.VO.Armour);
+            GameEvents.Instance.ObstacleTriggered(_health, PlayerContainer.VO.Health);
         }
         else if (item is FinishEntity finish)
         {
@@ -80,6 +81,7 @@ public class PlayerController : MonoBehaviour
         Vector3 targetPosition = transform.position;
         targetPosition.x = _initialPlayerX + moveAmount;
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, PlayerContainer.VO.HorizontalFollowSpeed * Time.fixedDeltaTime);
+        transform.eulerAngles = 20f * (targetPosition.x - transform.position.x) * Vector3.up;
     }
 
     private void SetHealth(float change)
@@ -119,6 +121,7 @@ public class PlayerController : MonoBehaviour
     private void OnLevelSuccess()
     {
         _animator.SetBool(PlayerAnimationParameters.Victory.ToString(), true);
+        StartCoroutine(MoveZeroX());
     }
 
     private void OnBuyItem(MarketItems itemType)
@@ -134,5 +137,15 @@ public class PlayerController : MonoBehaviour
         }
 
         GameEvents.Instance.PlayerDataLevelIncreased(itemType);
+    }
+    private IEnumerator MoveZeroX()
+    {
+        Vector3 targetPos = transform.position;
+        targetPos.x = 0;
+        while (Vector3.Distance(targetPos, transform.position) > 0.2f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, 5 * Time.fixedDeltaTime);
+            yield return new WaitForFixedUpdate();
+        }
     }
 }
